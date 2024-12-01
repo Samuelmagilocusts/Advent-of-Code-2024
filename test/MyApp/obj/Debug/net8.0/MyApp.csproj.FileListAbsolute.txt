@@ -1,0 +1,15 @@
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\bin\Debug\net8.0\MyApp.exe
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\bin\Debug\net8.0\MyApp.deps.json
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\bin\Debug\net8.0\MyApp.runtimeconfig.json
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\bin\Debug\net8.0\MyApp.dll
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\bin\Debug\net8.0\MyApp.pdb
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\obj\Debug\net8.0\MyApp.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\obj\Debug\net8.0\MyApp.AssemblyInfoInputs.cache
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\obj\Debug\net8.0\MyApp.AssemblyInfo.cs
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\obj\Debug\net8.0\MyApp.csproj.CoreCompileInputs.cache
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\obj\Debug\net8.0\MyApp.sourcelink.json
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\obj\Debug\net8.0\MyApp.dll
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\obj\Debug\net8.0\refint\MyApp.dll
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\obj\Debug\net8.0\MyApp.pdb
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\obj\Debug\net8.0\MyApp.genruntimeconfig.cache
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\test\MyApp\obj\Debug\net8.0\ref\MyApp.dll
