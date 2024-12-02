@@ -1,3 +1,9 @@
+
+
+def pull_one_out(array, splitter):
+    return array[:splitter] + array[splitter+1:]
+
+
 filelines = []
 grid = []
 with open("Day 2/input.txt", "r") as file:
@@ -50,6 +56,7 @@ for number_array in assending_lines:
         if i < len(number_array)-1:
             if (int(number_array[i+1]) - int(number_array[i]) > 3 or int(number_array[i+1]) - int(number_array[i]) < 1):
                 checkmark = False
+                break
 
     if checkmark:
         total +=1
@@ -60,40 +67,43 @@ for number_array in decending_lines:
         if i < len(number_array)-1:
             if (int(number_array[i]) - int(number_array[i+1]) > 3 or int(number_array[i]) - int(number_array[i+1]) < 1):
                 checkmark = False
+                break
 
     if checkmark:
         total +=1
 
 total_p2 = 0
-for number_array in problem_lines_d:
-    number_array.sort()
-    number_array.reverse()
+for number_array_full in problem_lines_d:
     checkmark = True
  
-    for i in range(len(number_array)):   
-        if i < len(number_array)-1:
-            if (int(number_array[i]) - int(number_array[i+1]) > 3 or int(number_array[i]) - int(number_array[i+1]) < 1):
-                checkmark = False
+    for d in range(len(number_array_full)):
+        number_array = pull_one_out(number_array_full, d)
 
-    if checkmark:
-        total_p2 +=1
+        for i in range(len(number_array)):   
+            if i < len(number_array)-1:
+                if (int(number_array[i]) - int(number_array[i+1]) > 3 or int(number_array[i]) - int(number_array[i+1]) < 1):
+                    checkmark = False
+                    break
+
+        if checkmark:
+            total_p2 +=1
+            break
 
 for number_array in problem_lines_a:
-    number_array.sort()
     checkmark = True
- 
-    for i in range(len(number_array)):   
-        if i < len(number_array)-1:
-            if (int(number_array[i+1]) - int(number_array[i]) > 3 or int(number_array[i+1]) - int(number_array[i]) < 1):
-                checkmark = False
+    for d in range(len(number_array_full)):
+        number_array = pull_one_out(number_array_full, d)
+        for i in range(len(number_array)):   
+            if i < len(number_array)-1:
+                if (int(number_array[i+1]) - int(number_array[i]) > 3 or int(number_array[i+1]) - int(number_array[i]) < 1):
+                    checkmark = False
+                    break
 
-    if checkmark:
-        total_p2 +=1
+        if checkmark:
+            total_p2 +=1
+            break
 
 
 print("total p1",total, "total p2", total_p2)
 
 
-
-def pull_one_out(array, splitter):
-    return array[:splitter] + array[splitter:]
