@@ -1,0 +1,34 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug C program",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/main",  // Path to the executable
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            // "externalConsole": true,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "gdb",  // Path to GDB (use full path if needed)
+            "preLaunchTask": "build",  // The build task name from tasks.json
+            "logging": {
+                "moduleLoad": false,
+                "trace": true,
+                "engineLogging": false
+            },
+            "sourceFileMap": {
+                "/usr/src/lib": "${workspaceFolder}/src"
+            }
+        }
+    ]
+}
