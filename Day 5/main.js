@@ -10,11 +10,13 @@ var pages_2darray = [];
 
 array_op_string.forEach(line => {
     let pair = [];
-    let [left, right] = line.split(':');
+    let [left, right] = line.split('|');
+    // console.log("left",left,"right",right)
     pair.push(parseInt(left));
     pair.push(parseInt(right));
     operations.push(pair);
 });
+// console.log(operations);
 
 array_pages_string.forEach(line => {
     let int_pages = [];
@@ -28,7 +30,8 @@ array_pages_string.forEach(line => {
 function get_constraints(page) {
     let commands = [];
     operations.forEach(operation_pair => {
-        if (page.contains(operation_pair[0]) && page.contains(operation_pair[1])) {
+        // console.log("31",operation_pair,"page",page);
+        if (page.includes(operation_pair[0]) && page.includes(operation_pair[1])) {
             commands.push(operation_pair);
         }
     });
@@ -36,8 +39,15 @@ function get_constraints(page) {
 }
 function validate_page(commands, page) {
     commands.forEach(command => {
-        if (page.indexof(command[0]) >= page.indexof(command[1])) {
-            return false;
+        // console.log(command)
+        if (command[0] < command[1]) {
+            if (page.indexOf(command[0]) > page.indexOf(command[1])) {
+                return false;
+            }
+        } else {
+            if (page.indexOf(command[0]) < page.indexOf(command[1])) {
+                return false;
+            }
         }
     });
     return true;
@@ -56,7 +66,7 @@ function main() {
     })
 
     validated_pages.forEach(page => {
-        total += page[page.length/2];
+        total += page[Math.round(page.length/2)];
     })
 
     console.log("AOC Day5 Part 1 Total:",total);
