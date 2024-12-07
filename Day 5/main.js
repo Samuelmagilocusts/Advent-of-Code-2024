@@ -48,27 +48,26 @@ function validate_page(commands, page) {
     return answer;
 }
 
-function fix_page(page, commands) {
-    let fixed_page = structuredClone(page); 
+function fix_page(pages, commands) {
+    let fixed_pages = structuredClone(pages); 
     let fixing = true;
     while (fixing) {
         fixing = false;
         commands.forEach(command => {
-            let left_index = fixed_page.indexOf(command[0]);
-            let right_index = fixed_page.indexOf(command[1]);
+            let left_index = fixed_pages.indexOf(command[0]);
+            let right_index = fixed_pages.indexOf(command[1]);
             if (left_index > right_index) {
                 fixing = true;
-                const [pull] = fixed_page.splice(left_index, 1);
+                const [pull] = fixed_pages.splice(left_index, 1);
                 if (right_index > 0) {
-                    fixed_page.splice(right_index-1,0,pull);
+                    fixed_pages.splice(right_index-1,0,pull);
                 } else {
-                    fixed_page.unshift(pull);
+                    fixed_pages.unshift(pull);
                 }
-                let review;
             }
         })
     }
-    return fixed_page;
+    return fixed_pages;
 }
 
 
