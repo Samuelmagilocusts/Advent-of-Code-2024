@@ -1,0 +1,15 @@
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\bin\Debug\net9.0\AOC Day 7.exe
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\bin\Debug\net9.0\AOC Day 7.deps.json
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\bin\Debug\net9.0\AOC Day 7.runtimeconfig.json
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\bin\Debug\net9.0\AOC Day 7.dll
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\bin\Debug\net9.0\AOC Day 7.pdb
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\obj\Debug\net9.0\AOC Day 7.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\obj\Debug\net9.0\AOC Day 7.AssemblyInfoInputs.cache
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\obj\Debug\net9.0\AOC Day 7.AssemblyInfo.cs
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\obj\Debug\net9.0\AOC Day 7.csproj.CoreCompileInputs.cache
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\obj\Debug\net9.0\AOC Day 7.sourcelink.json
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\obj\Debug\net9.0\AOC Day 7.dll
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\obj\Debug\net9.0\refint\AOC Day 7.dll
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\obj\Debug\net9.0\AOC Day 7.pdb
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\obj\Debug\net9.0\AOC Day 7.genruntimeconfig.cache
+c:\Users\Starfox64\Desktop\Projects\Advent-of-Code-2024\Day 7\AOC Day 7\obj\Debug\net9.0\ref\AOC Day 7.dll
