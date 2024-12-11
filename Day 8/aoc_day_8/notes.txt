@@ -1,0 +1,12 @@
+too low
+    1041
+    1049
+    1050
+
+
+wrong answer
+    1054
+    1055
+
+right answer   
+    1064
