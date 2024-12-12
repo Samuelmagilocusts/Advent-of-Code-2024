@@ -36,8 +36,11 @@ function main() {
     let currentLine = file.split(' ');
 
     for (let i = 0; i < 75; i++) {
+        let time = Date.now();
         currentLine = process_line(currentLine);
         // console.log(i,currentLine);///////////;
+        console.log(i+1,currentLine.length);
+        console.log(Date.now() - time);
     }
 
     console.log("AOC Day 11 p1 total:",currentLine.length);
