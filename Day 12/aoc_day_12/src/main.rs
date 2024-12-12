@@ -3,8 +3,14 @@ use std::io::{self, BufRead};
 use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 
+fn push_per(per: &mut HashMap<char, i32>, character: char) {
+    per.entry(character)
+        .and_modify(|num_of_per| *num_of_per += 1)
+        .or_insert(1);
+}
+
 fn main() -> io::Result<()> {
-    let path = "test2.txt";
+    let path = "test1.txt";
     let alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
     let file = File::open(path)?;
     let reader = io::BufReader::new(file);
@@ -25,35 +31,34 @@ fn main() -> io::Result<()> {
             
             if x > 0 { // l
                 if lines[y][x-1] != *character {
-                    per.entry(*character)
-                        .and_modify(|num_of_per| *num_of_per += 1)
-                        .or_insert(1);
+                    push_per(&mut per, *character);
                 }
-            } 
+            } else {
+                push_per(&mut per, *character);
+            }
 
             if y > 0 { // u
                 if lines[y-1][x] != *character {
-                    per.entry(*character)
-                        .and_modify(|num_of_per| *num_of_per += 1)
-                        .or_insert(1);
+                    push_per(&mut per, *character);
                 }
-            } 
+            } else {
+                push_per(&mut per, *character);
+            }
 
             if x < line.len()-1 { // r
-                // println!("{},{}",lines[y][x+1],character);
                 if lines[y][x+1] != *character {
-                    per.entry(*character)
-                        .and_modify(|num_of_per| *num_of_per += 1)
-                        .or_insert(1);
+                    push_per(&mut per, *character);
                 }
+            } else {
+                push_per(&mut per, *character);
             }
 
             if y < line.len()-1 { // d
                 if lines[y+1][x] != *character {
-                    per.entry(*character)
-                        .and_modify(|num_of_per| *num_of_per += 1)
-                        .or_insert(1);
+                    push_per(&mut per, *character);
                 }
+            } else {
+                push_per(&mut per, *character);
             }
         }
     }
