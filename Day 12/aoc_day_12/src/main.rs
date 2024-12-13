@@ -3,78 +3,129 @@ use std::io::{self, BufRead};
 use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 
-fn push_per(per: &mut HashMap<char, i32>, character: char) {
-    per.entry(character)
-        .and_modify(|num_of_per| *num_of_per += 1)
-        .or_insert(1);
+
+fn build_param(lines: &Vec<Vec<char>>, character: char, (y, x): (usize, usize)) -> usize {
+    let mut amount_push = 0;
+
+    if x > 0 { // l
+        if lines[y][x-1] != character {
+            amount_push += 1;
+        }
+    } else {
+        amount_push += 1;
+    }
+
+    if y > 0 { // u
+        if lines[y-1][x] != character {
+            amount_push += 1;
+        }
+    } else {
+        amount_push += 1;
+    }
+
+    if x < lines.len()-1 { // r
+        if lines[y][x+1] != character {
+            amount_push += 1;
+        }
+    } else {
+        amount_push += 1;
+    }
+
+    if y < lines.len()-1 { // d
+        if lines[y+1][x] != character {
+            amount_push += 1;
+        }
+    } else {
+        amount_push += 1;
+    }
+
+    amount_push
+}
+
+fn recurse(grid: &Vec<Vec<char>>, character: char, (y, x): (usize, usize), visited: &mut HashSet<(usize, usize)>, saved: &mut Vec<[usize;2]>) -> (usize, usize) {
+    let mut area: usize = 0;
+    let mut param: usize = 0;
+
+    if grid[y][x] == character {
+        if !visited.contains(&(y,x)) {
+            area += 1;
+            param += build_param(grid, character, (y,x));
+            visited.insert((y,x));
+            saved.push([y,x]);
+        }
+    }
+
+    if x > 0 { // l
+        if grid[y][x-1] == character {
+            if !visited.contains(&(y,x-1)) {
+                let (a, p) = recurse(&grid, character, (y,x-1), visited, saved);
+                area += a;
+                param += p;
+            }
+        }
+    } 
+
+    if y > 0 { // u
+        if grid[y-1][x] == character {
+            if !visited.contains(&(y-1,x)) {
+                let (a, p) = recurse(&grid, character, (y-1,x), visited, saved);
+                area += a;
+                param += p;
+            }
+        }
+    } 
+
+    if x < grid.len()-1 { // r
+        if grid[y][x+1] == character {
+            if !visited.contains(&(y,x+1)) {
+                let (a, p) = recurse(&grid, character, (y,x+1), visited, saved);
+                area += a;
+                param += p;
+            }
+        }
+    } 
+
+    if y < grid.len()-1 { // d
+        if grid[y+1][x] == character {
+            if !visited.contains(&(y+1,x)) {
+                let (a, p) = recurse(&grid, character, (y+1,x), visited, saved);
+                area += a;
+                param += p;
+            }
+        }
+    } 
+    
+    (area, param)
 }
 
 fn main() -> io::Result<()> {
-    let path = "test1.txt";
-    let alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+    let path = "test2.txt";
     let file = File::open(path)?;
     let reader = io::BufReader::new(file);
-    let mut total: i32 = 0;
-    let mut lines: Vec<Vec<char>> = reader
+    let mut total: usize = 0;
+    let mut total_p2: usize = 0;
+    let mut grid: Vec<Vec<char>> = reader
         .lines()
         .filter_map(Result::ok)
         .map(|line| line.chars().collect())
         .collect();
-    let mut area: HashMap<char, i32> = HashMap::new();
-    let mut per: HashMap<char, i32> = HashMap::new();
 
-    for (y, line) in lines.iter().enumerate() {
-        for (x, character) in line.iter().enumerate() {
-            area.entry(*character)
-                        .and_modify(|num_of_area| *num_of_area += 1)
-                        .or_insert(1);
-            
-            if x > 0 { // l
-                if lines[y][x-1] != *character {
-                    push_per(&mut per, *character);
-                }
-            } else {
-                push_per(&mut per, *character);
-            }
-
-            if y > 0 { // u
-                if lines[y-1][x] != *character {
-                    push_per(&mut per, *character);
-                }
-            } else {
-                push_per(&mut per, *character);
-            }
-
-            if x < line.len()-1 { // r
-                if lines[y][x+1] != *character {
-                    push_per(&mut per, *character);
-                }
-            } else {
-                push_per(&mut per, *character);
-            }
-
-            if y < line.len()-1 { // d
-                if lines[y+1][x] != *character {
-                    push_per(&mut per, *character);
-                }
-            } else {
-                push_per(&mut per, *character);
-            }
-        }
-    }
-
-    println!("{:?}",area);
-    println!("{:?}",per);
-
-    for c in alphabet {
-        if let Some(a) = area.get(&c) {
-            if let Some(p) = per.get(&c) {
-                total += *a * *p;
+    let mut visited: HashSet<(usize, usize)> = HashSet::new();
+    
+    
+    for y in 0..grid.len() {
+        for x in 0..grid.len() {
+            let mut coordinates: Vec<[usize; 2]> = Vec::new();
+            if !visited.contains(&(y, x)) {
+                let (a, p) = recurse(&grid, grid[y][x], (y, x), &mut visited, &mut coordinates);
+                total += a * p;
+                println!("{:?}",coordinates);
             }
         }
     }
 
     println!("AOC Day 12 P1 Total: {}",total);
+    println!("AOC Day 12 P2 Total: {}",total_p2);
 
     Ok(())
 }
