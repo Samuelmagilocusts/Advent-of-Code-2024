@@ -4,17 +4,89 @@ use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 
 
+fn process_robot(start: [i32; 2], move_d: [i32; 2], limit: i32, max_x: i32, max_y: i32) -> [usize; 2] {   
+    let mut x = (start[0] + move_d[0]*limit) % max_x;
+    let mut y = (start[1] + move_d[1]*limit) & max_y;
+
+    if move_d[0] < 0 {
+        x = max_x + x;
+    }
+
+    if move_d[1] < 0 {
+        y = max_y + y;
+    }
+
+    [x as usize, y as usize]
+}
+
+fn extract_pair(pair: &str) -> (i32, i32) {
+    let parts: Vec<i32> = pair
+        .split(',')
+        .map(|num| num.parse::<i32>().unwrap())
+        .collect();
+
+    (parts[0], parts[1])
+}
+
+fn parse_coordinates(input: &str) -> [i32; 4] {
+    let mut p_coords = (0, 0);
+    let mut v_coords = (0, 0);
+
+    for segment in input.split_whitespace() {
+        if segment.starts_with("p=") {
+            p_coords = extract_pair(&segment[2..]);
+        } else if segment.starts_with("v=") {
+            v_coords = extract_pair(&segment[2..]);
+        }
+    }
+
+    let (p_x, p_y) = p_coords;
+    let (v_x, v_y) = v_coords;
+
+    [p_x, p_y, v_x, v_y]
+}
+
 fn main() -> io::Result<()> {
-    let path = "test2.txt";
+    let path = "micro.txt";
     let file = File::open(path)?;
     let reader = io::BufReader::new(file);
     let mut total: usize = 0;
     let mut total_p2: usize = 0;
-    let mut grid: Vec<Vec<char>> = reader
+    let mut instructions: Vec<String> = reader
         .lines()
         .filter_map(Result::ok)
-        .map(|line| line.chars().collect())
         .collect();
+    let mut grid: Vec<Vec<i32>> = Vec::new();
+
+    // let max_x = 101;
+    // let max_y = 103;
+
+    let max_x = 11;
+    let max_y = 7;
+    let limit = 5;
+
+
+    for _ in 0..max_y {
+        let mut temp = Vec::new();
+        for _ in 0..max_x {
+            temp.push(0);
+        }
+        grid.push(temp);
+    }
+
+    for instuction in instructions {
+        let [p_x, p_y, v_x, v_y] = parse_coordinates(&instuction);
+        let [x, y] = process_robot([p_x, p_y], [v_x, v_y], limit, max_x, max_y);
+        grid[y][x] += grid[y][x] + 1;
+    }
+
+    for line in grid {
+        for character in line {
+            total += 1;
+        }
+    }
+
+    println!("AOC Day 14 Part 1 Total: {}",total);
 
     Ok(()) 
 }
