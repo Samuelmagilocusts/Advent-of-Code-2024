@@ -1,92 +1,91 @@
 use std::fs::File;
 use std::io::{self, BufRead};
-use std::collections::{HashMap, HashSet};
 use std::time::Instant;
-use regex::Regex;
 
 
-fn algebra2(x1: i64, x2: i64, y1: i64, y2: i64, x_check: i64, y_check: i64) -> [i64; 2] {
-    let mut results: [i64; 2] = [1000000000000000, 1000000000000000];
+fn algebra2(x1: f64, x2: f64, y1: f64, y2: f64, x_check: f64, y_check: f64) -> [u64; 2] {
+    let b: f64 = ((y_check * x1 - x_check * y1) / ((x2 * x1 + x2 * y1)-(x1 * x2 + x1 * y2))).abs();
+    let a: f64 = (x_check - x2 * b) / x1;
 
-    
 
-    for i in 0..1000 {
-        for t in 0..1000 {
-            if i * x1 + t * x2 == x_check && i * y1 + t * y2 == y_check {
-                if i + t < results[0] + results[1] {
-                    results[0] = i;
-                    results[1] = t;
-                }
-            }
-        }
+    if a.fract() == 0.0 && b.fract() == 0.0 {
+        [a as u64, b as u64]
+    } else {
+        [0,0]
     }
-    results
 }
 
-fn algebra(x1: i64, x2: i64, y1: i64, y2: i64, x_check: i64, y_check: i64) -> [i64; 2] {
-    let mut results: [i64; 2] = [1000000000000000, 1000000000000000];
-    for i in 0..1000 {
-        for t in 0..1000 {
-            if i * x1 + t * x2 == x_check && i * y1 + t * y2 == y_check {
-                if i + t < results[0] + results[1] {
-                    results[0] = i;
-                    results[1] = t;
-                }
-            }
-        }
-    }
-    results
-}
 
 fn main() -> io::Result<()> {
 
-    let path = "test.txt";
+    let path = "input.txt";
     let file = File::open(path)?;
     let reader = io::BufReader::new(file);
-    let mut total: i64 = 0;
-    let mut total_p2: i64 = 0;
-    let mut instructions: Vec<String> = reader.lines().filter_map(Result::ok).collect();
-    let mut x1: i64 = 0;
-    let mut x2: i64 = 0;
-    let mut y1: i64 = 0;
-    let mut y2: i64 = 0;
-    let mut x_check: i64 = 0;
-    let mut y_check: i64 = 0;
+    let mut total: u64 = 0;
+    let instructions: Vec<String> = reader.lines().filter_map(Result::ok).collect();
+    let mut x1: f64 = 0.0;
+    let mut x2: f64 = 0.0;
+    let mut y1: f64 = 0.0;
+    let mut y2: f64 = 0.0;
+    let mut x_check: f64 = 0.0;
+    let mut y_check: f64 = 0.0;
+    let p2 = true;
 
 
     let mut i = 0;
+    let time = Instant::now();
     for line in instructions {
-        let re = Regex::new(r"(Button \w+|Prize): X[+=](\d+), Y[+=](\d+)").unwrap();
-        if let Some(captures) = re.captures(&line) {
-            let label = captures.get(1).unwrap().as_str();
-            let x = captures.get(2).unwrap().as_str().parse::<i64>().unwrap();
-            let y = captures.get(3).unwrap().as_str().parse::<i64>().unwrap();
+        if i == 2 { 
+            let x_temp = line.split("X=").nth(1).unwrap().split(',').nth(0).unwrap().trim();
+            let y_temp = line.split("Y=").nth(1).unwrap().trim();
 
-            if line.contains("Prize") { 
-                i = 0;
+            let x = x_temp.parse::<f64>().unwrap();
+            let y = y_temp.parse::<f64>().unwrap();
+
+            if p2 {
+                x_check = x+10000000000000.0;
+                y_check = y+10000000000000.0;
+            } else {
                 x_check = x;
                 y_check = y;
-                let mut result: [i64; 2] = algebra(x1, x2, y1, y2, x_check, y_check);
-                if result[0] != 1000000000000000 && result[1] != 1000000000000000 {
-                    total += result[0] * 3 + result[1] * 1;
-                    // println!();
-                } 
-                
-            } else {
-                i += 1;
-                if i == 1 {
-                    x1 = x;
-                    y1 = y;
-                } else if i == 2 {
-                    x2 = x;
-                    y2 = y;
-                }
             }
-            println!("Label: {}, X: {}, Y: {}", label, x, y);  
+            // println!("Label: {}, X: {}, Y: {}", label, x_check, y_check);  
+            
+            let result: [u64; 2] = algebra2(x1, x2, y1, y2, x_check, y_check);
+            if result[0] != 0 && result[1] != 0 {
+                total += result[0] * 3 + result[1] * 1;
+            } 
+            i += 1;
+            
+        } else if i < 2 {
+            let x_temp = line.split("X+").nth(1).unwrap().split(',').nth(0).unwrap().trim();
+            let y_temp = line.split("Y+").nth(1).unwrap().trim();
+
+            let x = x_temp.parse::<f64>().unwrap();
+            let y = y_temp.parse::<f64>().unwrap();
+
+            
+            if i == 0 {
+                x1 = x;
+                y1 = y;
+            } else if i == 1 {
+                x2 = x;
+                y2 = y;
+            }
+
+            i += 1;
+            // println!("Label: {}, X: {}, Y: {}", label, x, y);  
+        } else {
+            i = 0;
         }
     }
+    println!("Time: {:?}", time.elapsed());
 
-    println!("Total AOC Day 13 Part 1: {:?}",total);
+    if p2 {
+        println!("Total AOC Day 13 Part 2: {:?}",total);
+    } else {
+        println!("Total AOC Day 13 Part 1: {:?}",total);
+    }
 
     Ok(())
 }
