@@ -137,9 +137,11 @@ fn main() -> io::Result<()> {
     println!("AOC Day 14 Part 1 Total: {}",total);
     println!("Time: {:?}",start.elapsed());
 
+
     let p2 = true;
     if p2 {
-        for i in 60..85 {
+        let start_2 = Instant::now();
+        for i in 3000..10000 {
             let mut ni = instructions_copy.clone();
             let mut grid_p2: Vec<Vec<char>> = Vec::new();
             for _ in 0..max_y {
@@ -154,7 +156,7 @@ fn main() -> io::Result<()> {
                 let [p_x, p_y, v_x, v_y] = parse_coordinates(&instruction);
                 let [x, y] = process_robot([p_x, p_y], [v_x, v_y], i, max_x, max_y);
                 // println!("{}:{}",x,y);
-
+                
                 if grid_p2[y][x] == '.' {
                     grid_p2[y][x] = '1';
                 } else {
@@ -168,9 +170,15 @@ fn main() -> io::Result<()> {
             //     }
             //     println!()
             // }
-            append_grid_to_file(&grid_p2, i as usize, "display.txt")?;
+            if grid_p2[33].iter().filter(|&&c| c != '.').count() > 15 {
+                append_grid_to_file(&grid_p2, i as usize, "display.txt")?;
+            }
+            
         }
+        println!("Time: {:?}",start_2.elapsed());
     }
+
+    
 
     Ok(()) 
 }
