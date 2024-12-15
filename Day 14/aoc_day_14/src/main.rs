@@ -3,6 +3,30 @@ use std::io::{self, BufRead};
 use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 
+use std::fs::OpenOptions;
+use std::io::{Write};
+
+fn append_grid_to_file(grid: &Vec<Vec<char>>, iteration: usize, filename: &str) -> io::Result<()> {
+    // Open the file in append mode
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(filename)?;
+
+    // Write the iteration number
+    writeln!(file, "Iteration: {}\n", iteration)?;
+
+    // Write the grid row by row
+    for row in grid {
+        let line: String = row.iter().collect(); // Convert Vec<char> to String
+        writeln!(file, "{}", line)?; // Write to file
+    }
+
+    // Add some blank lines for spacing
+    writeln!(file, "\n\n")?;
+
+    Ok(())
+}
 
 fn process_robot(start: [i32; 2], move_d: [i32; 2], limit: i32, max_x: i32, max_y: i32) -> [usize; 2] {
     let mut x = (start[0] + move_d[0] * limit) % max_x;
@@ -56,6 +80,7 @@ fn main() -> io::Result<()> {
         .lines()
         .filter_map(Result::ok)
         .collect();
+    let mut instructions_copy = instructions.clone();
     let mut grid: Vec<Vec<i32>> = Vec::new();
 
     let max_x = 101;
@@ -75,8 +100,8 @@ fn main() -> io::Result<()> {
         grid.push(temp);
     }
 
-    for instuction in instructions {
-        let [p_x, p_y, v_x, v_y] = parse_coordinates(&instuction);
+    for instruction in instructions {
+        let [p_x, p_y, v_x, v_y] = parse_coordinates(&instruction);
         let [x, y] = process_robot([p_x, p_y], [v_x, v_y], limit, max_x, max_y);
         // println!("{}:{}",x,y);
 
@@ -106,11 +131,46 @@ fn main() -> io::Result<()> {
     total = lu * ru * ld * rd;
 
     
-
+    
 
 
     println!("AOC Day 14 Part 1 Total: {}",total);
     println!("Time: {:?}",start.elapsed());
+
+    let p2 = true;
+    if p2 {
+        for i in 60..85 {
+            let mut ni = instructions_copy.clone();
+            let mut grid_p2: Vec<Vec<char>> = Vec::new();
+            for _ in 0..max_y {
+                let mut temp = Vec::new();
+                for _ in 0..max_x {
+                    temp.push('.');
+                }
+                grid_p2.push(temp);
+            }
+            for instruction in ni {
+                
+                let [p_x, p_y, v_x, v_y] = parse_coordinates(&instruction);
+                let [x, y] = process_robot([p_x, p_y], [v_x, v_y], i, max_x, max_y);
+                // println!("{}:{}",x,y);
+
+                if grid_p2[y][x] == '.' {
+                    grid_p2[y][x] = '1';
+                } else {
+                    grid_p2[y][x] = std::char::from_u32((grid_p2[y][x] as u32) + 1).unwrap();
+                }                
+            }
+            // println!("{}",i);
+            // if (i > 60 && i < 65) || (i > 80 && i < 84) {
+            //     for line in grid_p2 {
+            //         println!("{:?}",line);
+            //     }
+            //     println!()
+            // }
+            append_grid_to_file(&grid_p2, i as usize, "display.txt")?;
+        }
+    }
 
     Ok(()) 
 }
