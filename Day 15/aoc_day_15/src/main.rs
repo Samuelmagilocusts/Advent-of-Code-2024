@@ -1,7 +1,5 @@
 use std::fs::File;
 use std::io::{self, BufRead};
-use std::collections::HashSet;
-use std::process::{Command, Output};
 use std::time::Instant;
 
 fn shift_line(grid: &mut Vec<Vec<char>>, direction: char, [x, y]: [usize; 2]) {
@@ -9,7 +7,7 @@ fn shift_line(grid: &mut Vec<Vec<char>>, direction: char, [x, y]: [usize; 2]) {
     match direction {
         '<' => {
             
-            for i in (0..=x).rev() {
+            for i in (1..=x).rev() {
                 if grid[y][i] == '.' {
                     index = i;
                     break;
@@ -21,18 +19,18 @@ fn shift_line(grid: &mut Vec<Vec<char>>, direction: char, [x, y]: [usize; 2]) {
             }
         },
         '>' => {
-            for i in x..grid.len() {
+            for i in x..grid.len()-1 {
                 if grid[y][i] == '.' {
                     index = i;
                     break;
                 }
             }
-            for i in (x..=index).rev() {
+            for i in (x+1..=index).rev() {
                 grid[y][i] = grid[y][i-1];
             }
         },
         '^' => {
-            for i in (0..=y).rev() {
+            for i in (1..=y).rev() {
                 if grid[i][x] == '.' {
                     index = i;
                     break;
@@ -44,14 +42,14 @@ fn shift_line(grid: &mut Vec<Vec<char>>, direction: char, [x, y]: [usize; 2]) {
             }
         },
         'v' => {
-            for i in y..grid.len() {
+            for i in y..grid.len()-1 {
                 if grid[i][x] == '.' {
                     index = i;
                     break;
                 }
             }
 
-            for i in (y..=index).rev() {
+            for i in (y+1..=index).rev() {
                 grid[i][x] = grid[i-1][x];
             }
         },
@@ -295,7 +293,6 @@ fn main() -> io::Result<()> {
     let path = "input.txt";
     let file = File::open(path)?;
     let reader = io::BufReader::new(file);
-    let mut total: usize = 0;
     let mut grid: Vec<Vec<char>> = reader
         .lines()
         .filter_map(Result::ok)
@@ -308,7 +305,7 @@ fn main() -> io::Result<()> {
     let file_c = File::open(path_c)?;
     let reader_c = io::BufReader::new(file_c);
     let mut total: usize = 0;
-    let mut commands: Vec<Vec<char>> = reader_c
+    let commands: Vec<Vec<char>> = reader_c
         .lines()
         .filter_map(Result::ok)
         .map(|line| line.chars().collect())
@@ -342,7 +339,7 @@ fn main() -> io::Result<()> {
 
     for i in 0..grid.len() {
         for t in 0..grid.len() {
-            if testgrid[i][t] == '#' && grid[i][t] != testgrid[i][t] {
+            if grid[i][t] == '#' && grid[i][t] != testgrid[i][t] {
                println!("Moved #. ({},{})",t,i);
             }
         }
