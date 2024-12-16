@@ -50,6 +50,10 @@ fn shift_line(grid: &mut Vec<Vec<char>>, direction: char, [x, y]: [usize; 2]) {
             }
 
             for i in (y+1..=index).rev() {
+                if grid[i-1][x] == '#' {
+                    println!();
+                    break;
+                }
                 grid[i][x] = grid[i-1][x];
             }
         },
@@ -152,11 +156,13 @@ fn grid_range_contains(grid: &mut Vec<Vec<char>>, direction: char, [x, y]: [usiz
             for i in y..grid.len()-1 {
                 if grid[i][x] == '.' {
                    first_dot = i as i32;
+                   break;
                 } 
             }
             for i in y..grid.len()-1 {
                 if grid[i][x] == '#' {
                    first_hash = i as i32;
+                   break;
                 } 
             }
             if first_dot == -1 {
@@ -323,24 +329,38 @@ fn main() -> io::Result<()> {
         }
     }
 
-    // print_grid(&mut grid);
+    print_grid(&mut grid);
+    println!();
+    println!();
 
+    let mut it  = 0;
     for line in commands {
         for com in line {
             if com != '\n' && com != '\r' {
                 build_frame(&mut grid, com, &mut start);
                 // print_grid(&mut grid);
-                // println!();
+                
+                if it > 3988 {
+                    // println!("{}",it);
+                }
+                it +=  1;
             }
         }
     }
-
-    // print_grid(&mut grid);
+// 
+    print_grid(&mut grid);
 
     for i in 0..grid.len() {
         for t in 0..grid.len() {
+            if testgrid[i][t] == '#' && testgrid[i][t] != grid[i][t] {
+               println!("Before #. ({},{})",t,i);
+            }
+        }
+    } 
+    for i in 0..grid.len() {
+        for t in 0..grid.len() {
             if grid[i][t] == '#' && grid[i][t] != testgrid[i][t] {
-               println!("Moved #. ({},{})",t,i);
+               println!("After #. ({},{})",t,i);
             }
         }
     } 
