@@ -6,6 +6,7 @@
 #include <array>
 #include <chrono>
 #include <map>
+#include <queue>
 
 struct Visited {
     bool fork;
@@ -14,6 +15,13 @@ struct Visited {
     bool up;
     bool down;
 };
+
+struct Cell
+{
+    int x;
+    int y;
+};
+
 
 bool run = true;
 
@@ -49,25 +57,12 @@ void print_grid(std::vector<std::vector<char>> &grid) {
     std::cout << "\n";
 }
 
-int test = 0;
 void recurse(std::vector<std::vector<char>> &grid, std::vector<int> &totals,  std::vector<std::pair<int, int>> &visited, int x = 0, int y = 0,  int total = 0, char last_dir = 's') {
     bool enable[4] = {false, false, false, false};
     int temp_total[4] = {0,0,0,0};
-    // std::cout << x << ":" << y << "\n";
-    // if (run == false) {
-    //     return;
-    // }
-    // test++;
-    // if (test % 10000 == 0) {
-        // print_grid(grid);
-    //     int stop = 0;
-    // }
-
+ 
     if (grid[y][x] == 'E') {
         totals.push_back(total);
-        // if (totals.size() > 10) {
-        //     run = false;
-        // }
         return;
     } 
 
@@ -135,14 +130,9 @@ void recurse(std::vector<std::vector<char>> &grid, std::vector<int> &totals,  st
     }
 
     if (amount_enabled == 0) {
-        
-        // if (!visited.empty()) {
-        //     visited.pop_back();
-        // }
         return;
     } else {
         if (doesnot_contain(visited, {x,y})) {
-            // std::cout << "Size: " << visited.size() << "\n";
             visited.push_back({x,y});
             test = true;
         }
@@ -194,6 +184,14 @@ void recurse(std::vector<std::vector<char>> &grid, std::vector<int> &totals,  st
         }
         visited.pop_back();
     }
+
+}
+
+void recurse(std::vector<std::vector<char>> &grid, int new_x = 0, int new_y = 0) {
+    std::queue<Cell*> process;
+
+    
+
 
 }
 
