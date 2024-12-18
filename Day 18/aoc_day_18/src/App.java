@@ -6,23 +6,28 @@
 // import java.util.function.Consumer;
 // import java.io.FileNotFoundException;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+// import org.w3c.dom.Node;
+
+// import java.util.regex.Matcher;
+// import java.util.regex.Pattern;
 import java.util.ArrayList;
-import java.util.Collections;
+// import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Queue;
 // import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+// import java.util.HashMap;
+// import java.util.List;
+// import java.util.Map;
 import java.io.File;
 
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.io.File;
+// import java.util.ArrayList;
+// import java.util.Scanner;
+// import java.io.File;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        File file = new File("test.txt");
+        File file = new File("input.txt");
         Scanner reader = new Scanner(file);
 
         ArrayList<ArrayList<Integer>> coords = new ArrayList<>();
@@ -40,18 +45,13 @@ public class App {
         }
         reader.close();
 
-        // Initialize the grid
-         // Set grid size (7x7 in this case)
-        ArrayList<Integer> totals = new ArrayList<Integer>();
-
         // Place '#' in the grid based on coordinates
-        // for (int i = 0; i < coords.size(); i++) {
+        for (int i = 0; i < coords.size(); i++) {
             ArrayList<ArrayList<Character>> grid = new ArrayList<>();
-            ArrayList<ArrayList<Boolean>> visited = new ArrayList<ArrayList<Boolean>>();
-            ArrayList<Integer> subtotals = new ArrayList<Integer>();
+            ArrayList<ArrayList<Boolean>> visited = new ArrayList<>();
             preload(grid, gridSize);
             preloadBool(visited, gridSize);
-            int i = 12;
+            // int i = 1024;
             int t = 0;
             for (ArrayList<Integer> coord : coords) {
                 if (t < i) {
@@ -61,30 +61,14 @@ public class App {
                 }
                 t++;
             }
-            d = 5;
-            recurse(grid, 0, 0, 0, visited, subtotals);
-            if (subtotals.size() > 0) {
-                for (int num : subtotals) {
-                    if (num > 0) {
-                        totals.add(num);
-                    }
-                }
-            }
-            
-            print_grid(grid);
-            int thing = 0;
-            
-        // }
-
-        // Print the grid to verify
-        // for (ArrayList<Character> row : grid) {
-        //     for (Character cell : row) {
-        //         System.out.print(cell + " ");
-        //     }
-        //     System.out.println();
-        // }
-        Collections.sort(totals);
-        System.out.printf("AOC Day 18 Part 1: %d ", totals.get(0));
+            int result = bfs(grid, 0 ,0);
+            if (result == -1) {
+                System.out.printf("AOC Day 18 Part 2: %d:%d\n", coords.get(i-1).get(0),coords.get(i-1).get(1));
+                break;
+            }   
+        }
+        // System.out.printf("AOC Day 18 Part 1: %d\n", total);
+        
     }
 
     public static void preload(ArrayList<ArrayList<Character>> grid, int gridSize) {
@@ -114,49 +98,52 @@ public class App {
         System.out.println();
     }
 
-    static int max = 7 * 7;
-    static int d = 0;
-    static int gridSize = 7;
+    static int gridSize = 71;
 
-    public static void recurse(ArrayList<ArrayList<Character>> grid, int x, int y, int total, ArrayList<ArrayList<Boolean>> visited, ArrayList<Integer> totals) {
-        // if (d >= max) {
-        //     return;
-        // }
-        // d++;
+    static class Node {
+        int x, y, steps;
 
-        // print_grid(grid);
-        
-        if (x == grid.size()-1 && y == grid.size()-1) {
-            totals.add(total);
-            return;
+        Node(int x, int y, int steps) {
+            this.x = x;
+            this.y = y;
+            this.steps = steps;
         }
-        
-        visited.get(y).set(x, true);
-        grid.get(y).set(x, 'O');
-        if (x > 0) {
-            if (grid.get(y).get(x-1) == '.' && visited.get(y).get(x-1) == false) {
-                recurse(grid, x-1, y, total + 1, visited, totals);
-            }
-        }
-
-        if (x < grid.size()-1) {
-            if (grid.get(y).get(x+1) == '.' && visited.get(y).get(x+1) == false) {
-                recurse(grid, x+1, y, total + 1, visited, totals);
-            }
-        }
-
-        if (y > 0) {
-            if (grid.get(y-1).get(x) == '.' && visited.get(y-1).get(x) == false) {
-                recurse(grid, x, y-1, total + 1, visited, totals);
-            }
-        }
-
-        if (y < grid.size()-1) {
-            if (grid.get(y+1).get(x) == '.' && visited.get(y+1).get(x) == false) {
-                recurse(grid, x, y+1, total + 1, visited, totals);
-            }
-        }
-
-        visited.get(y).set(x, false);
     }
+
+    public static int bfs(ArrayList<ArrayList<Character>> grid, int startX, int startY) {
+        int n = grid.size();
+        boolean[][] visited = new boolean[n][n];
+        Queue<Node> queue = new LinkedList<>();
+        int[][] directions = { {0, 1}, {1, 0}, {0, -1}, {-1, 0} }; // Right, Down, Left, Up
+
+        // Start BFS from the top-left corner
+        queue.add(new Node(startX, startY, 0));
+        visited[startY][startX] = true;
+
+        while (!queue.isEmpty()) {
+            Node current = queue.poll();
+
+            // If we reach the bottom-right corner, return the steps
+            if (current.x == n - 1 && current.y == n - 1) {
+                return current.steps;
+            }
+
+            // Explore all possible directions
+            for (int[] dir : directions) {
+                int newX = current.x + dir[0];
+                int newY = current.y + dir[1];
+
+                // Check if the new position is within bounds, not visited, and not blocked
+                if (newX >= 0 && newY >= 0 && newX < n && newY < n &&
+                        grid.get(newY).get(newX) == '.' && !visited[newY][newX]) {
+                    visited[newY][newX] = true;
+                    queue.add(new Node(newX, newY, current.steps + 1));
+                }
+            }
+        }
+
+        // If no path is found, return -1
+        return -1;
+    }
+    
 }
