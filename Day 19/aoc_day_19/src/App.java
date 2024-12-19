@@ -42,21 +42,45 @@ public class App {
 
         System.out.printf("AOC Day 19 Part 1 Total: %d\n",total);
 
+        ArrayList<ArrayList<String>> all_pos = new ArrayList<>();
+
+        
+        for (int i = 0; i < towels.size(); i++) {
+            ArrayList<String> temp = new ArrayList<>();
+            for (int s = towels.size()-1; s > (towels.size() - 1) - i; s--) {
+                temp.add(towels.get(s));
+            }
+            for (int e = 0; e < towels.size()-i; e++) {
+                temp.add(towels.get(e));
+            }
+            all_pos.add(temp);
+        }
+
+        int total_p2 = 0;
         
         for (String pattern : valid_patterns) {
-            number_of_combos(towels, pattern, new HashMap<>());
+             
+            for (ArrayList<String> new_towels : all_pos) {
+                ArrayList<String> result = new ArrayList<>();
+                if (number_of_combos(new_towels, pattern, new HashMap<>(), result)) {
+                    //
+                }
+            }
         }
+
+        total_p2 = all_results.size();
 
         System.out.printf("AOC Day 19 part 2 Total: %d\n",total_p2);
         
     }
 
-    static int total_p2 = 0;
+    static ArrayList<ArrayList<String>> all_results = new ArrayList<>();
 
-    public static boolean number_of_combos(ArrayList<String> towels, String pattern, HashMap<String, Boolean> map) {
+    public static boolean number_of_combos(ArrayList<String> towels, String pattern, HashMap<String, Boolean> map, ArrayList<String> result) {
         if (pattern.isEmpty()) {
-            total_p2++;
-            // return true;
+            if (!all_results.contains(result)) {
+                all_results.add(result);
+            }
         };
 
         if (map.containsKey(pattern)) {
@@ -65,11 +89,14 @@ public class App {
 
         for (String towel : towels) {
             if (pattern.startsWith(towel)) {
-                if (isPossible(towels, pattern.substring(towel.length()), map)) {
+                result.add(towel);
+                if (number_of_combos(towels, pattern.substring(towel.length()), map, result)) {
                     map.put(pattern, true);
-                    total_p2++;
-                    // return true;
+                    if (!all_results.contains(result)) {
+                        all_results.add(result);
+                    }
                 }
+                result.remove(result.size()-1);
             }
         }
         map.put(pattern, false);
