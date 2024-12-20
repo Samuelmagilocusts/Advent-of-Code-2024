@@ -6,8 +6,8 @@ import java.util.HashMap;
 
 public class App {
     public static void main(String[] args) throws Exception {
-
-        File file = new File("test.txt");
+        
+        File file = new File("input.txt");
         Scanner reader = new Scanner(file);
 
         ArrayList<String> towels = new ArrayList<>();
@@ -29,78 +29,50 @@ public class App {
         reader.close();
 
         int total = 0;
-        ArrayList<String> valid_patterns = new ArrayList<>();
+        long start_p1 = System.currentTimeMillis();
 
         for (String pattern : patterns) {
             if (isPossible(towels, pattern, new HashMap<>())) { 
                 total++; 
-                // System.out.printf("increased total: %d\n",total);
-                valid_patterns.add(pattern);
             };
-            // System.out.println("Nothing");
         }
 
         System.out.printf("AOC Day 19 Part 1 Total: %d\n",total);
-
-        ArrayList<ArrayList<String>> all_pos = new ArrayList<>();
-
+        long end_p1 = System.currentTimeMillis();
+        System.out.println("Time p1 ms: " + (end_p1-start_p1));
         
-        for (int i = 0; i < towels.size(); i++) {
-            ArrayList<String> temp = new ArrayList<>();
-            for (int s = towels.size()-1; s > (towels.size() - 1) - i; s--) {
-                temp.add(towels.get(s));
-            }
-            for (int e = 0; e < towels.size()-i; e++) {
-                temp.add(towels.get(e));
-            }
-            all_pos.add(temp);
-        }
-
+        long start_p2 = System.currentTimeMillis();
         int total_p2 = 0;
-        
-        for (String pattern : valid_patterns) {
-             
-            for (ArrayList<String> new_towels : all_pos) {
-                ArrayList<String> result = new ArrayList<>();
-                if (number_of_combos(new_towels, pattern, new HashMap<>(), result)) {
-                    //
-                }
-            }
+        for (String pattern : patterns) {
+            total_p2 += number_of_combos(towels, pattern, new HashMap<>());
+            // System.out.println("out total up");
         }
-
-        total_p2 = all_results.size();
 
         System.out.printf("AOC Day 19 part 2 Total: %d\n",total_p2);
+        long end_p2 = System.currentTimeMillis();
+        System.out.println("Time p2 ms: " + (end_p2-start_p2));
         
     }
 
-    static ArrayList<ArrayList<String>> all_results = new ArrayList<>();
-
-    public static boolean number_of_combos(ArrayList<String> towels, String pattern, HashMap<String, Boolean> map, ArrayList<String> result) {
+    public static int number_of_combos(ArrayList<String> towels, String pattern, HashMap<String, Integer> map) {
         if (pattern.isEmpty()) {
-            if (!all_results.contains(result)) {
-                all_results.add(result);
-            }
+            return 1;
         };
 
         if (map.containsKey(pattern)) {
             return map.get(pattern);
         }
 
+        int max = 0;
+
         for (String towel : towels) {
             if (pattern.startsWith(towel)) {
-                result.add(towel);
-                if (number_of_combos(towels, pattern.substring(towel.length()), map, result)) {
-                    map.put(pattern, true);
-                    if (!all_results.contains(result)) {
-                        all_results.add(result);
-                    }
-                }
-                result.remove(result.size()-1);
+                int current_max = number_of_combos(towels, pattern.substring(towel.length()), map);
+                max += current_max;
             }
         }
-        map.put(pattern, false);
-        return false;
+        map.put(pattern, max);
+        return max;
     }
 
     public static boolean isPossible(ArrayList<String> towels, String pattern, HashMap<String, Boolean> map) {
