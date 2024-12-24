@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Zig Project",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "\"${workspaceFolder}/zig-out/bin/Day 22.exe\"",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "preLaunchTask": "Build Zig Project",
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "miDebuggerPath": "C:/msys64/ucrt64/bin/lldb.exe"
+        }
+    ]
+}
