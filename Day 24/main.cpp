@@ -29,6 +29,8 @@ int flip(int first, const std::string &op, int second) {
     }
 }
 
+
+
 int main() {
     std::fstream file("input.txt");
     if (!file.is_open()) {
@@ -79,20 +81,43 @@ int main() {
         }
     }
 
-    uint64_t total = 0;
+    uint64_t total = 0, x_t = 0, y_t = 0;
     std::vector<int> values;
+    std::vector<int> x_values;
+    std::vector<int> y_values;
+
     for (auto &[key, value] : regs) {
         if (key[0] == 'z') {
             values.push_back(value);
-        } 
+        } else if (key[0] == 'x') {
+            x_values.push_back(value);
+        } else if (key[0] == 'y') {
+            y_values.push_back(value);
+        }
     }
 
     for (int i = values.size()-1; i >= 0; i--) {
         total = (total << 1) | values[i]; 
     }
 
-    std::bitset<64> binary(total); // Convert to 32-bit binary
-    std::cout << "Binary representation: " << binary << std::endl;
+    for (int i = x_values.size()-1; i >= 0; i--) {
+        x_t = (x_t << 1) | values[i]; 
+    }
+
+    for (int i = y_values.size()-1; i >= 0; i--) {
+        y_t = (y_t << 1) | values[i]; 
+    }
+
+    std::bitset<64> x_binary(x_t); // Convert to 32-bit binary
+    std::cout << "Binary representation x: " << x_binary << std::endl;
+    std::bitset<64> y_binary(y_t); // Convert to 32-bit binary
+    std::cout << "Binary representation y: " << y_binary << std::endl;
+    std::bitset<64> z_binary(total); // Convert to 32-bit binary
+    std::cout << "Binary representation z: " << z_binary << std::endl;
+    std::bitset<64> combined_binary(x_t+y_t); // Convert to 32-bit binary
+    std::cout << "Binary representation c: " << combined_binary << std::endl;
+    std::cout << "Decimal representation c: " << x_t+y_t << std::endl;
+
     std::cout << "AOC Day 24 Total: " << total << std::endl;
 
     return 0;
