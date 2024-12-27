@@ -1,16 +1,18 @@
 package main
 
+// part 1 works runs in about 5 seconds. part 2 not so much... didnt even finish building part 2
+
 import (
 	"bufio"
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 )
 
 var all_paths [][]rune
 
 func main() {
-
 	file, _ := os.Open("test.txt")
 	defer file.Close()
 	reader := bufio.NewScanner(file)
@@ -34,121 +36,138 @@ func main() {
 	}
 
 	var total int = 0
-	for _, target := range targets {
-		x, y := get_start_pos(numpad, 'A')
-		var robot_one_req []rune
+	for u, target := range targets {
+		var starting []rune
+		var robot [][]rune
+		var subtotal = 0
+
 		for _, char := range target {
-			vis := set_false(4)
-			all_paths = [][]rune{}
-			get_shortest_path(numpad, x, y, vis, char, []rune{})
-			validate_paths(numpad, char, x, y)
-			temp := find_shortest(dirpad, x, y)
-			robot_one_req = append(robot_one_req, temp...)
-			robot_one_req = append(robot_one_req, 'A')
-			x, y = get_start_pos(numpad, char)
+			starting = append(starting, char)
 		}
 
-		robot_two_req := get_commands(dirpad, robot_one_req)
-		robot_three_req := get_commands(dirpad, robot_two_req)
-		num, _ := strconv.Atoi(string([]rune(target[:len(target)-1])))
-		total += len(robot_three_req) * num
+		var temp_robot = get_commands(numpad, starting)
 
+		for _, array := range temp_robot {
+			if len(robot) == 0 {
+				robot = array
+			} else {
+				robot = die(robot, array)
+			}
+		}
+
+		for i := range 3 - 1 {
+			start := time.Now()
+			source_robot := make([][]rune, len(robot))
+			for i := range robot {
+				source_robot[i] = make([]rune, len(robot[i]))
+				copy(source_robot[i], robot[i])
+			}
+			robot = [][]rune{}
+			for _, r := range source_robot {
+				temp_robot = get_commands(dirpad, r)
+				var temp_new_robot [][]rune
+				for _, array := range temp_robot {
+					if len(temp_new_robot) == 0 {
+						temp_new_robot = array
+					} else {
+						temp_new_robot = die(temp_new_robot, array)
+					}
+				}
+				robot = append(robot, remove_douplicates(temp_new_robot)...)
+			}
+
+			robot = remove_douplicates(robot)
+			robot = find_shortest(robot)
+			elapsed := time.Since(start)
+			fmt.Printf("%d, %d Time Elapsed: %d ms\n", u, i+1, elapsed.Milliseconds())
+		}
+
+		for _, r := range robot {
+			if subtotal == 0 || len(r) < subtotal {
+				subtotal = len(r)
+			}
+		}
+
+		num, _ := strconv.Atoi(string([]rune(target[:len(target)-1])))
+		total += subtotal * num
 	}
 
 	fmt.Printf("AOC Day 21 Part 1 Total: %d", total)
-
 }
 
-func validate_paths(pad [][]rune, target rune, start_x int, start_y int) {
-	// Create a new slice to store valid paths
-	var valid_paths [][]rune
+func remove_douplicates(array [][]rune) [][]rune {
+	vis := make(map[string]bool)
+	result := [][]rune{}
+	for _, line := range array {
+		str := string(line)
 
-	for _, array := range all_paths {
-		if validate(pad, target, array, start_x, start_y) {
-			valid_paths = append(valid_paths, array) // Keep valid paths
+		if !vis[str] {
+			vis[str] = true
+			result = append(result, line)
 		}
 	}
-
-	// Replace all_paths with only the valid paths
-	all_paths = valid_paths
-}
-
-func findMostConsecutive(grid [][]rune) []rune {
-	var result []rune
-	maxConsecutive := 0
-
-	for _, arr := range grid {
-		currentChar := rune(0)
-		currentCount := 0
-		maxCountForArr := 0
-
-		for _, char := range arr {
-			if char == currentChar {
-				currentCount++
-			} else {
-				currentChar = char
-				currentCount = 1
-			}
-			if currentCount > maxCountForArr {
-				maxCountForArr = currentCount
-			}
-		}
-
-		if maxCountForArr > maxConsecutive {
-			maxConsecutive = maxCountForArr
-			result = arr
-		}
-	}
-
 	return result
 }
 
-func find_shortest(dirpad [][]rune, x int, y int) []rune {
-	var shortest = 10000
-	var selected = 0
-	var one []int
-	var check_array [][]rune
-
-	for i, array := range all_paths {
-		if shortest > len(array) {
-			shortest = len(array)
-			selected = i
+func die(one [][]rune, two [][]rune) [][]rune {
+	var new_2d_array [][]rune
+	for _, seg_one := range one {
+		for _, seg_two := range two {
+			new_1d_array := make([]rune, len(seg_one))
+			copy(new_1d_array, seg_one)
+			new_1d_array = append(new_1d_array, seg_two...)
+			new_2d_array = append(new_2d_array, new_1d_array)
 		}
 	}
 
-	for i, array := range all_paths {
+	return find_shortest(new_2d_array)
+}
+
+func find_shortest(big_array [][]rune) [][]rune {
+	var shortest = 0
+	var one []int
+	var check_array [][]rune
+
+	for _, array := range big_array {
+		if shortest == 0 || shortest > len(array) {
+			shortest = len(array)
+		}
+	}
+
+	for i, array := range big_array {
 		if shortest == len(array) {
 			one = append(one, i)
 			check_array = append(check_array, array)
 		}
 	}
 
-	var temp []rune
-	if len(one) > 1 {
-		temp = findMostConsecutive(check_array)
-	} else {
-		temp = all_paths[selected]
-	}
-	return temp
+	return check_array
 }
 
-func get_commands(dirpad [][]rune, targets []rune) []rune {
-	var result []rune
+func get_commands(pad [][]rune, targets []rune) [][][]rune {
+	var capture [][][]rune
 
-	x, y := get_start_pos(dirpad, 'A')
+	x, y := get_start_pos(pad, 'A')
 
 	for _, target := range targets {
-		vis := set_false(3)
+		vis := set_false(4)
 		all_paths = [][]rune{}
-		get_shortest_path(dirpad, x, y, vis, target, []rune{})
-		validate_paths(dirpad, target, x, y)
-		temp := find_shortest(dirpad, x, y)
-		result = append(result, temp...)
-		result = append(result, 'A')
-		x, y = get_start_pos(dirpad, target)
+		get_shortest_path(pad, x, y, vis, target, []rune{})
+		validate_paths(pad, target, x, y)
+
+		var choices = find_shortest(all_paths)
+		var big_array [][]rune
+		for _, choice := range choices {
+			temp := make([]rune, len(choice))
+			copy(temp, choice)
+			temp = append(temp, 'A')
+			big_array = append(big_array, temp)
+		}
+		x, y = get_start_pos(pad, target)
+		capture = append(capture, big_array)
 	}
 
-	return result
+	return capture
 }
 
 func set_false(size int) [][]bool {
@@ -202,6 +221,18 @@ func get_shortest_path(grid [][]rune, x int, y int, vis [][]bool, end rune, path
 	vis[y][x] = false
 }
 
+func validate_paths(pad [][]rune, target rune, start_x int, start_y int) {
+	var valid_paths [][]rune
+
+	for _, array := range all_paths {
+		if validate(pad, target, array, start_x, start_y) {
+			valid_paths = append(valid_paths, array)
+		}
+	}
+
+	all_paths = valid_paths
+}
+
 func validate(pad [][]rune, target rune, path []rune, start_x int, start_y int) bool {
 	var x = start_x
 	var y = start_y
@@ -218,7 +249,6 @@ func validate(pad [][]rune, target rune, path []rune, start_x int, start_y int) 
 		}
 	}
 
-	// println(pad[y][x])
 	if x >= 0 && y >= 0 && x < len(pad[0]) && y < len(pad) && pad[y][x] == target {
 		return true
 	}
