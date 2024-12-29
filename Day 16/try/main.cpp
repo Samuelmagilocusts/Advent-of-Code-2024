@@ -4,30 +4,15 @@
 #include <string>
 #include <queue>
 #include <map>
-#include <set>
 #include <chrono>
 #include <windows.h>
 #include <cstdlib>
 #include <cmath>
 #include <algorithm>
-#include <thread>
-#include <mutex>
-#include <utility>
 
-std::mutex paths_mutex;
-std::mutex visited_mutex;
-
-struct State {
-    std::vector<std::pair<int, int>> path;
-    int distance = 0, turns = 0;
-
-    State(const std::vector<std::pair<int, int>>& p, int d, int t)
-        : path(p), distance(d), turns(t) {}
-
-    bool operator<(const State& other) const {
-        return distance + turns * 1000 > other.distance + other.turns * 1000;
-    }
-};
+int calculate_heuristic(int y1, int x1, int y2, int x2) {
+    return abs(y1 - y2) + abs(x1 - x2);
+}
 
 void setColor(int color) {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -157,6 +142,10 @@ std::vector<std::pair<int, int>> get_options(const std::vector<std::vector<char>
         }
     }
 
+    // for (auto &[y, x] : options) {
+    //     std::cout << x << " : " << y << "\n";
+    // }
+
     return options;
 }
 
@@ -172,191 +161,39 @@ int path_total(std::vector<std::pair<int,int>> path) {
     return num_of_corners + num_of_steps;
 }
 
+void shortest_path(std::map<std::pair<int, int>, std::vector<std::pair<int,int>>> all_options, std::vector<std::vector<std::pair<int,int>>> &paths, std::pair<int, int> start, std::pair<int, int> end, const int MAX) 
+{
+    std::queue<std::vector<std::pair<int, int>>> process;
 
-int test = 0;
-// void shortest_path(
-//     std::map<std::pair<int, int>, std::vector<std::pair<int, int>>> all_options,
-//     std::vector<std::vector<std::pair<int, int>>>& paths,
-//     std::pair<int, int> start,
-//     std::pair<int, int> end,
-//     const int MAX
-// ) {
-//     // Priority queue for processing states (path, cost, corner count).
-//     std::priority_queue<State> process;
-//     std::set<std::pair<std::pair<int, int>, int>> visited; // Tracks visited corners with path characteristics.
-
-//     // Start with the initial state.
-//     process.push({{start}, 0, 0});
-
-//     auto start_time = std::chrono::high_resolution_clock::now();
-
-//     while (!process.empty()) {
-//         State current = process.top();
-//         process.pop();
-
-//         const auto& path = current.path;
-//         const auto& cell = path.back();
-//         int current_distance = current.distance;
-//         int current_turns = current.turns;
-
-//         if (test != current_turns) {
-//             std::cout << current_turns << " at: " << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start_time).count() << "s\n";
-//             test = current_turns;
-//         }
-
-//         // Stop if path exceeds max allowed corners.
-//         if (path.size() > MAX) {
-//             continue;
-//         }
-
-//         // If the end is reached, record the path.
-//         if (cell == end) {
-//             paths.push_back(path);
-//             return;
-//         }
-
-//         // Evaluate options for the current cell.
-//         const auto& options = all_options[cell];
-//         for (const auto& corner : options) {
-//             if (std::find(path.begin(), path.end(), corner) == path.end()) {
-//                 // Build the new path.
-//                 std::vector<std::pair<int, int>> new_path = path;
-//                 new_path.push_back(corner);
-
-//                 // Compute distance and turns for the new state.
-//                 int new_distance = current_distance +
-//                                    abs(corner.first - cell.first) +
-//                                    abs(corner.second - cell.second);
-//                 int new_turns = current_turns + 1;
-
-//                 // Check if this corner and cost combination was already processed.
-//                 if (visited.find({corner, new_distance + new_turns * 1000}) == visited.end()) {
-//                     visited.insert({corner, new_distance + new_turns * 1000});
-//                     process.push({new_path, new_distance, new_turns});
-//                 }
-//             }
-//         }
-//     }
-// }
-
-void process_thread(
-    const std::map<std::pair<int, int>, std::vector<std::pair<int, int>>>& all_options,
-    std::vector<std::vector<std::pair<int, int>>>& global_paths,
-    const std::pair<int, int>& start,
-    const std::pair<int, int>& end,
-    const int MAX,
-    const std::vector<std::pair<int, int>>& initial_options
-) {
-    std::priority_queue<State> process;
-    std::set<std::pair<std::pair<int, int>, int>> local_visited; // Thread-local visited
-
-    // Initialize processing queue with initial options
-    for (const auto& corner : initial_options) {
-        int distance = abs(corner.first - start.first) + abs(corner.second - start.second);
-        process.push({{start, corner}, distance, 1});
-    }
-
-    std::vector<std::vector<std::pair<int, int>>> local_paths;
-    auto start_time = std::chrono::high_resolution_clock::now();
-
-    // Main processing loop
+    process.push({start});
+    
     while (!process.empty()) {
-        State current = process.top();
+        std::vector<std::pair<int, int>> current_path = process.front();
         process.pop();
 
-        const auto& path = current.path;
-        const auto& cell = path.back();
-        int current_distance = current.distance;
-        int current_turns = current.turns;
-
-        // Skip paths exceeding the max corners
-        if (path.size() > MAX) {
+        if (current_path.size() > MAX) {
             continue;
         }
 
-        if (test != current_turns) {
-            std::cout << current_turns << " at: " << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start_time).count() << "s\n";
-            test = current_turns;
-        }
+        const std::pair<int, int> cell = current_path[current_path.size() - 1];
 
-        // If the end is reached, save the path
         if (cell == end) {
-            local_paths.push_back(path);
+            paths.push_back(current_path);
             continue;
         }
 
-        // Process all options for the current cell
-        const auto& options = all_options.at(cell);
-        for (const auto& corner : options) {
-            if (std::find(path.begin(), path.end(), corner) == path.end()) {
-                std::vector<std::pair<int, int>> new_path = path;
+        for (std::pair<int, int> corner : all_options[cell]) {
+            if (std::find(current_path.begin(), current_path.end(), corner) == current_path.end()) {
+                std::vector<std::pair<int, int>> new_path = current_path;
                 new_path.push_back(corner);
-
-                int new_distance = current_distance +
-                                   abs(corner.first - cell.first) +
-                                   abs(corner.second - cell.second);
-                int new_turns = current_turns + 1;
-
-                // Ensure no duplicate states are processed
-                if (local_visited.find({corner, new_distance + new_turns * 1000}) == local_visited.end()) {
-                    local_visited.insert({corner, new_distance + new_turns * 1000});
-                    process.push({new_path, new_distance, new_turns});
-                }
+                process.push(new_path);
             }
         }
     }
-
-    // Merge thread-local paths into global paths
-    std::lock_guard<std::mutex> lock(paths_mutex);
-    global_paths.insert(global_paths.end(), local_paths.begin(), local_paths.end());
 }
-
-void shortest_path_multithreaded(
-    const std::map<std::pair<int, int>, std::vector<std::pair<int, int>>>& all_options,
-    std::vector<std::vector<std::pair<int, int>>>& paths,
-    const std::pair<int, int>& start,
-    const std::pair<int, int>& end,
-    const int MAX,
-    int num_threads = 24 // Default thread count
-) {
-    const auto& options = all_options.at(start);
-    size_t total_options = options.size();
-    size_t options_per_thread = (total_options + num_threads - 1) / num_threads;
-
-    std::vector<std::thread> threads;
-
-    // Launch threads to process divided chunks
-    for (int i = 0; i < num_threads; ++i) {
-        auto start_iter = options.begin() + i * options_per_thread;
-        auto end_iter = options.begin() + std::min<size_t>((i + 1) * options_per_thread, total_options);
-
-        // Ensure we don't go out of bounds
-        if (start_iter >= options.end()) break;
-
-        // Convert iterator range to a vector
-        std::vector<std::pair<int, int>> chunk(start_iter, end_iter);
-
-        threads.emplace_back(
-            process_thread,
-            std::cref(all_options),
-            std::ref(paths),
-            std::cref(start),
-            std::cref(end),
-            MAX,
-            std::move(chunk) // Pass the chunk to the thread
-        );
-    }
-
-    // Join all threads
-    for (auto& thread : threads) {
-        thread.join();
-    }
-}
-
-
 
 int main() {
-    int MAX = 82; // 7+1 for test, 11+1 for test2, 80+1 for input
+    int MAX = 81; // 7+1 for test, 11+1 for test2, 80+1 for input
     std::ifstream file("input.txt");
     std::vector<std::vector<char>> grid;
     std::vector<std::pair<int,int>> dead_ends;
@@ -364,7 +201,6 @@ int main() {
     std::map<int, std::vector<std::pair<int,int>>> y_axis;
     std::map<std::pair<int, int>, std::vector<std::pair<int,int>>> all_options;
     std::vector<std::vector<std::pair<int,int>>> paths;
-
     int total = 0;
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -468,8 +304,7 @@ int main() {
     // std::vector<std::vector<char>> new_grid = grid;
     // print_corners(new_grid, x_axis, y_axis);
 
-    // shortest_path(all_options, paths, {start_y, start_x}, {end_y, end_x}, MAX);
-    shortest_path_multithreaded(all_options, paths, {start_y, start_x}, {end_y, end_x}, MAX);
+    shortest_path(all_options, paths, {start_y, start_x}, {end_y, end_x}, MAX);
 
     if (!paths.empty()) {
 
