@@ -253,8 +253,8 @@ void shortest_path(const std::vector<std::vector<char>> &grid,
 
 
 int main() {
-    int MAX = 82; // 7+1 for test, 11+1 for test2, 80+1 for input
-    std::ifstream file("input.txt");
+    int MAX = 12; // 7+1 for test, 11+1 for test2, 80+1 for input
+    std::ifstream file("test2.txt");
     std::vector<std::vector<char>> grid;
     std::vector<std::vector<int>> dead_ends;
     std::map<int, std::vector<Pair*>> x_axis;
