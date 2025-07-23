@@ -320,7 +320,7 @@ void shortest_path(
                 char new_direction = get_new_direction(current_pair, corner);
 
                 
-                if (process.size() < 10000) process.push({new_node, new_distance, new_turns, new_direction}); 
+                if (process.size() < INT_MAX) process.push({new_node, new_distance, new_turns, new_direction}); 
                 can_go_deeper = true;         
                 
             } else { // TODO change this so that we are sure the seg needs killed.
@@ -344,6 +344,8 @@ uint64_t number_hashtags(std::vector<std::vector<char>>* grid) {
     }
     return output;
 }
+
+// TODO try removing all walls (aka #) than make a list of only path pairs. After this, sort the data in some way. i suppose in a way that has the start on one side and the end on the other. when done, take the shortest path from one side to the other (S to E).
 
 int main() {
     int MAX = INT_MAX; // 7+1 for test, 11+1 for test2, 80+1 for input
