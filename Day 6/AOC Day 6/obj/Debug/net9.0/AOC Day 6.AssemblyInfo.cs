@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AOC Day 6")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+13d33ac4c4deb9d6e1b2868523feb9ce7b5a4cbb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c1c25560c3165831a348caacb062677128fef54c")]
 [assembly: System.Reflection.AssemblyProductAttribute("AOC Day 6")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AOC Day 6")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

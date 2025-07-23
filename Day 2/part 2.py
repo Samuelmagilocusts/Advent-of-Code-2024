@@ -80,7 +80,7 @@ def main():
     filearray = []
     data = []
     total = 0
-    with open("Day 2/input.txt") as file:
+    with open("input.txt") as file:
         filearray = file.readlines()
 
     for line in filearray:

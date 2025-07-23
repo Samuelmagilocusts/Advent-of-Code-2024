@@ -31,9 +31,9 @@ int flip(int first, const std::string &op, int second) {
 
 
 bool validate_pairs(std::vector<int> pairs) {
-    if (pairs) {
+    // if (pairs) {
 
-    }
+    // }
 }
 
 void gen_combo(std::vector<std::vector<int>> results, int size_of_options, int num_of_swaps) {
@@ -43,7 +43,7 @@ void gen_combo(std::vector<std::vector<int>> results, int size_of_options, int n
 std::vector<std::vector<int>> generate_all_combos(int size_of_options, int num_of_swaps) {
     std::vector<int> model;
     std::vector<std::vector<int>> result;
-    std::map<> completed_swaps;
+    // std::map<> completed_swaps;
     for (int i = 0; i < size_of_options; i++) {
         model.push_back(i);
     }

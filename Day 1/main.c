@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 
+
 int convert_chars_to_int(char *table) {
     int temp = atoi(table);
     return temp;

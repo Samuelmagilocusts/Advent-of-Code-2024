@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::collections::{HashMap, HashSet};
+use std::time::Instant;
 
 fn get_unique_path_quantity(paths: &Vec<Vec<[usize; 2]>>) -> i32 {
     let mut unique = HashMap::new();
@@ -124,6 +125,8 @@ fn main() -> io::Result<()> {
     }
 
     println!("AOC Day 10 p1 total: {}",total);
+
+    
 
     Ok(())
 }

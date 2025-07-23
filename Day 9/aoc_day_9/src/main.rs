@@ -25,6 +25,7 @@ fn main() -> io::Result<()> {
         .collect();
 
     let mut sorted_line: Vec<i32> = Vec::new();
+    
 
     let mut t: i32 = 0;
     for i in 0..numbers.len() {

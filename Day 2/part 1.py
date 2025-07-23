@@ -6,7 +6,7 @@ def pull_one_out(array, splitter):
 
 filelines = []
 grid = []
-with open("Day 2/test.txt", "r") as file:
+with open("test.txt", "r") as file:
     filelines = file.readlines()
 
 for line in filelines:
