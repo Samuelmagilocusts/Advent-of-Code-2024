@@ -196,6 +196,8 @@ int path_total(std::vector<Pair*> path) {
     return num_of_corners + num_of_steps;
 }
 
+// int test = 0, test2 = 0;
+
 void shortest_path(const std::vector<std::vector<char>> &grid,
     std::map<int, std::vector<Pair*>> &x_axis, 
     std::map<int, std::vector<Pair*>> &y_axis,
@@ -213,13 +215,23 @@ void shortest_path(const std::vector<std::vector<char>> &grid,
         std::vector<Pair*> current_path = process.front();
         process.pop();
 
+        // if (test != test2) {
+        //     test = test2;
+        //     std::vector<std::vector<char>> temp_grid = grid;
+        //     load_grid_print(temp_grid, current_path);
+        // }
+
         if (current_path.size() > MAX) {
+            // std::vector<std::vector<char>> temp_grid = grid;
+            // load_grid_print(temp_grid, current_path);
             continue;
         }
 
         const Pair *cell = current_path[current_path.size() - 1];
 
         if (cell == end) {
+            // std::vector<std::vector<char>> temp_grid = grid;
+            // load_grid_print(temp_grid, current_path);
             paths.push_back(current_path);
             continue;
         }
@@ -233,6 +245,8 @@ void shortest_path(const std::vector<std::vector<char>> &grid,
                 process.push(new_path);
             }
         }
+
+        
     }
 }
 

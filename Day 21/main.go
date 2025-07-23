@@ -12,6 +12,8 @@ import (
 
 var all_paths [][]rune
 
+var best_routes map[[]rune][]rune
+
 func main() {
 	file, _ := os.Open("test.txt")
 	defer file.Close()

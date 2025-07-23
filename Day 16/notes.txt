@@ -4,4 +4,4 @@ too high
     80404
     80412
 
-runs for 9 min doesnt get answer gets 0
+
