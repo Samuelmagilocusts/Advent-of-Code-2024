@@ -27,6 +27,19 @@ struct yoyo_linked_list {
     yoyo_linked_list() : last(0), value({0,0}), size(1), next(0) {}
 };
 
+struct State {
+    yoyo_linked_list* position;
+    int distance = 0, turns = 0;
+    char direction = 0;
+
+    State(yoyo_linked_list* p, int d, int t, char dir)
+        : position(p), distance(d), turns(t), direction(dir) {}
+
+    bool operator<(const State& other) const {
+        return ((139 - position->value.second) + position->value.first) + turns * 1000 > ((139 - other.position->value.second) + other.position->value.first) + other.turns * 1000;
+    }
+};
+
 void setColor(int color) {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsole, color);
@@ -234,77 +247,132 @@ char get_new_direction(std::pair<int, int> one, std::pair<int, int> two) {
     }
 }
 
-uint64_t gen_hash_from_linklist(yoyo_linked_list* endpoint) {
+int test = 0;
+void shortest_path(
+    std::vector<std::vector<char>>& grid,
+    std::map<std::pair<int, int>, std::vector<std::pair<int, int>>>& all_options,
+    std::vector<yoyo_linked_list*>& paths,
+    std::set<std::pair<int, int>>& intersection,
+    std::pair<int, int> start,
+    std::pair<int, int> end,
+    const int MAX
+) {
+    std::priority_queue<State> process;
+    std::set<std::pair<std::pair<int, int>, char>> unuseful;
+    std::set<uint64_t> visited; // TODO make actual visited so it doesnt try to run millions of items into queue
+
+    yoyo_linked_list* first = new yoyo_linked_list();
+    first->value = start;
+    process.push({first, 0, 0, '^'});
+
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    while (!process.empty()) {
+        State current = process.top();
+        process.pop();
+
+        yoyo_linked_list* node = current.position;
+        if (!node) {
+            std::cout << "bad bad\n";
+        }
+
+        std::pair<int, int> current_pair = node->value;
+        int current_distance = current.distance;
+        int current_turns = current.turns;
+
+        if (test != current_turns) {
+            std::cout << current_turns << " at: " << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start_time).count() << "s\n";
+            test = current_turns;
+            // load_grid_print(grid, node);
+            std::cout << process.size() << " : "<< unuseful.size() << "\n";
+            // print_dead(unuseful, grid);
+        }
+
+        if (node->size > (uint64_t)MAX) {
+            paths.push_back(node);
+            continue;
+        }
+
+        if (current_pair == end) {
+            paths.push_back(node);
+            continue;
+        }
+
+
+        // if (process.size())
+        
+
+        const std::vector<std::pair<int, int>> options = all_options[current_pair];
+        bool can_go_deeper = false;
+        for (std::pair<int, int> corner : options) {
+            if (!list_contains(node, corner, false) && unuseful.find({corner, current.direction}) == unuseful.end() && 1) {
+                yoyo_linked_list* new_node = new yoyo_linked_list;
+                new_node->last = node;
+                new_node->next = 0;
+                new_node->size = node->size + 1;
+                new_node->value = corner;
+
+                int new_distance = current_distance +
+                                   abs(corner.first - (int)current_pair.first) +
+                                   abs(corner.second - (int)current_pair.second);
+                int new_turns = current_turns + 1;
+
+                char new_direction = get_new_direction(current_pair, corner);
+
+                
+                if (process.size() < INT_MAX) process.push({new_node, new_distance, new_turns, new_direction}); 
+                can_go_deeper = true;         
+                
+            } else { // TODO change this so that we are sure the seg needs killed.
+                // domino_effect(node, intersection, unuseful, current.direction);
+            }
+        }
+
+        if (!can_go_deeper) {
+            unuseful.insert({current_pair, current.direction});
+            // std::cout << "yoyoyo?\n";
+        }
+    }
+}
+
+uint64_t number_hashtags(std::vector<std::vector<char>>* grid) {
     uint64_t output = 0;
-    yoyo_linked_list* here = endpoint;
-    while (here) {
-        output ^= here->value.first + here->value.second * 140 + 0x9e3779b9;
-        here = here->last;
+    for (std::vector<char> vc : *grid) {
+        for (char c : vc) {
+            if (c == '#') output++;
+        }
     }
     return output;
 }
 
-yoyo_linked_list* find_path(
-    std::map<std::pair<uint64_t, uint64_t>, std::vector<std::pair<uint64_t, uint64_t>>>& cornors, 
-    std::pair<uint64_t, uint64_t> start, 
-    std::pair<uint64_t, uint64_t> end, 
-    std::vector<yoyo_linked_list*>& paths,
-    std::vector<std::vector<char>>& grid
-) {
-    uint64_t offset = sizeof(yoyo_linked_list), max_offset = sizeof(yoyo_linked_list) * 1000000000;
-    yoyo_linked_list* start_eleemnt = (yoyo_linked_list*)malloc(max_offset);
-    std::set<uint64_t> result_hashes;
+// TODO try removing all walls (aka #) than make a list of only path pairs. After this, sort the data in some way. i suppose in a way that has the start on one side and the end on the other. when done, take the shortest path from one side to the other (S to E).
 
-    start_eleemnt->last = 0; start_eleemnt->next = 0; start_eleemnt->size = 1; start_eleemnt->value = start;
+void do_something_bro(std::vector<std::pair<uint64_t, uint64_t>>& tab, std::vector<std::vector<char>>& grid) {
+    std::map<std::pair<uint64_t, uint64_t>, std::vector<std::pair<uint64_t, uint64_t>>> gm;
 
-    std::queue<yoyo_linked_list*> my_q;
-    my_q.push(start_eleemnt);
-    std::set<std::pair<uint64_t, uint64_t>> used;
-
-    while (!my_q.empty()) {
-        yoyo_linked_list* current = my_q.front();
-        std::pair<uint64_t, uint64_t> current_pair = current->value;
-        my_q.pop();
-
-        if (current_pair == end) {
-            uint64_t result_hash = gen_hash_from_linklist(current);
-            if (result_hashes.find(result_hash) == result_hashes.end()) {
-                paths.push_back(current);
-                result_hashes.insert(result_hash);
-            }
-            continue;
-        };
-
-        std::vector<std::pair<uint64_t, uint64_t>> yoyodude = cornors[current_pair];
-        std::cout << "yoyodude: " << yoyodude.size() << " \n";
-
-        for (std::pair<uint64_t, uint64_t> new_pair : cornors[current_pair]) {
-
-            std::cout << "";
-            if (used.find(new_pair) == used.end()) {
-                yoyo_linked_list* new_data = (yoyo_linked_list*)(start_eleemnt + offset);
-                if (max_offset <= offset) {
-                    new_data = (yoyo_linked_list*)malloc(sizeof(yoyo_linked_list));
-                }
-                new_data->value = new_pair;
-                new_data->next = 0;
-                new_data->last = current;
-                new_data->size = current->size + 1;
-
-                my_q.push(new_data);
-
-                offset += sizeof(yoyo_linked_list);
-                used.insert(new_pair);
+    for (std::pair<uint64_t, uint64_t> values : tab) {
+        for (std::pair<int, int> i : std::vector<std::pair<int, int>>{{values.first + 1, values.second}, {values.first + -1, values.second}, {values.first, values.second + 1}, {values.first, values.second - 1}}) {
+            if (grid[i.first][i.second] == '.') {
+                gm[values].push_back(i);
             }
         }
     }
-    return 0;
-}
 
+    // for (const std::pair<const std::pair<uint64_t, uint64_t>, std::vector<std::pair<uint64_t, uint64_t>>>& kv : gm) {
+    //     const std::pair<uint64_t, uint64_t>& key = kv.first;
+    //     const std::vector<std::pair<uint64_t, uint64_t>>& value = kv.second;
+    //     std::cout << "Key: " << key.first << ":" << key.second << " values: ";
+    //     for (const std::pair<uint64_t, uint64_t>& p_value : value) {
+    //         std::cout << p_value.first << ":" << p_value.second << ", ";
+    //     }
+
+    //     std::cout << "\n";
+    // }
+}
 
 int main() {
     // int MAX = INT_MAX; // 7+1 for test, 11+1 for test2, 80+1 for input
-    std::ifstream file("test2.txt");
+    std::ifstream file("input.txt");
     std::vector<std::vector<char>> grid;
     std::vector<std::pair<int,int>> dead_ends;
     std::vector<std::pair<uint64_t, uint64_t>> graph;
@@ -327,8 +395,6 @@ int main() {
         file.close();
     }
 
-    // TODODODODO Change this so that the cornors gets the next cornor. currently it is grabbing the next adjacent node.
-
     int start_x = 0, start_y = 0, end_x = 0, end_y = 0;
     for (size_t i = 0; i < grid.size(); i++) {
         for (size_t j = 0; j < grid[i].size(); j++) {
@@ -337,12 +403,6 @@ int main() {
                 start_y = i;
                 x_axis[j].push_back({i,j});
                 y_axis[i].push_back({i,j});
-                for (std::pair<int, int> r : std::vector<std::pair<int, int>>{{i + 1, j}, {i - 1, j}, {i, j + 1}, {i, j - 1}}) {
-                    if (grid[r.first][r.second] == '.') {
-                        cornors[{i,j}].push_back(r);
-                    }
-                }
-
             }
 
             if (grid[i][j] == 'E') {
@@ -350,11 +410,6 @@ int main() {
                 end_y = i;
                 x_axis[j].push_back({i,j});
                 y_axis[i].push_back({i,j});
-                for (std::pair<int, int> r : std::vector<std::pair<int, int>>{{i + 1, j}, {i - 1, j}, {i, j + 1}, {i, j - 1}}) {
-                    if (grid[r.first][r.second] == '.') {
-                        cornors[{i,j}].push_back(r);
-                    }
-                }
             }
         }
     }
@@ -367,6 +422,55 @@ int main() {
         }
     }
 
+    do_something_bro(graph, grid);
+
+
+
+    // for (size_t y = 0; y < grid.size(); y++) {
+    //     for (size_t x = 0; x < grid[0].size(); x++) {
+    //         if (grid[y][x] == '.') {
+    //             int deadend = 0;
+    //             if (grid[y][x+1] == '#') deadend++;
+    //             if (grid[y][x-1] == '#') deadend++;
+    //             if (grid[y+1][x] == '#') deadend++;
+    //             if (grid[y-1][x] == '#') deadend++;
+
+    //             if (deadend == 3) {
+    //                 dead_ends.push_back({x, y});
+    //             } 
+    //         }
+    //     }
+    // }
+
+    // for (std::pair<int,int> pair : dead_ends) {
+    //     kill_dead_ends(grid, pair.first, pair.second);
+    // }
+
+    // // print_grid(grid);
+
+    // dead_ends.clear();
+
+    // std::vector<std::vector<char>> grid2 = grid;
+
+    // for (size_t y = 0; y < grid.size(); y++) {
+    //     for (size_t x = 0; x < grid[0].size(); x++) {
+    //         if (grid[y][x] == '.') {
+    //             int deadend = 0;
+    //             if (grid[y][x+1] == '#') deadend++;
+    //             if (grid[y][x-1] == '#') deadend++;
+    //             if (grid[y+1][x] == '#') deadend++;
+    //             if (grid[y-1][x] == '#') deadend++;
+
+    //             if (deadend == 3) {
+    //                 dead_ends.push_back({x, y});
+    //             } 
+    //         }
+    //     }
+    // }
+
+    // for (std::pair<int,int> pair : dead_ends) {
+    //     kill_dead_ends(grid2, pair.first, pair.second);
+    // }
 
     for (size_t y = 0; y < grid.size(); y++) {
         for (size_t x = 0; x < grid[0].size(); x++) {
@@ -441,7 +545,42 @@ int main() {
 
     dump.close();
 
-    yoyo_linked_list* result = find_path(cornors, {start_y, start_x}, {end_y, end_x}, paths, grid);
+
+
+    // std::vector<std::vector<char>> temp_grid = grid;
+    // for (size_t i = 0; i < grid.size(); i++) {
+    //     for (size_t d = 0; d < grid[0].size(); d++) {
+    //         if (intersection.find({i,d}) != intersection.end()) {
+    //             temp_grid[i][d] = 'w';
+    //         }
+    //     }
+    // }
+
+    // print_grid(temp_grid);
+    // print_grid(grid);
+
+    // for (size_t i = 0; i < x_axis.size(); i++) {
+    //     for (std::pair<int, int> cell : x_axis[i]) {
+    //         std::vector<std::pair<int, int>> options = get_options(grid, x_axis, y_axis, cell);
+    //         if (all_options.find(cell) == all_options.end()) {
+    //             all_options[cell] = options;
+    //         } 
+    //     }
+    // }
+
+    // for (size_t i = 0; i < y_axis.size(); i++) {
+    //     for (std::pair<int, int> cell : y_axis[i]) {
+    //         std::vector<std::pair<int, int>> options = get_options(grid, x_axis, y_axis, cell);
+    //         if (all_options.find(cell) == all_options.end()) {
+    //             all_options[cell] = options;
+    //         } 
+    //     }
+    // }
+
+    // std::vector<std::vector<char>> new_grid = grid;
+    // print_corners(new_grid, x_axis, y_axis);
+
+    // shortest_path(grid, all_options, paths, intersection, {start_y, start_x}, {end_y, end_x}, MAX);
 
     if (!paths.empty()) {
         yoyo_linked_list* best_node;
