@@ -309,6 +309,7 @@ int main() {
     std::vector<std::pair<int,int>> dead_ends;
     std::vector<std::pair<uint64_t, uint64_t>> graph;
     std::map<std::pair<uint64_t, uint64_t>, std::vector<std::pair<uint64_t, uint64_t>>> cornors;
+    std::list<std::pair<uint64_t, uint64_t>> cornors_list;
     std::map<int, std::vector<std::pair<uint64_t, uint64_t>>> x_axis;
     std::map<int, std::vector<std::pair<uint64_t, uint64_t>>> y_axis;
     std::map<std::pair<int, int>, std::vector<std::pair<int,int>>> all_options;
@@ -337,11 +338,11 @@ int main() {
                 start_y = i;
                 x_axis[j].push_back({i,j});
                 y_axis[i].push_back({i,j});
-                for (std::pair<int, int> r : std::vector<std::pair<int, int>>{{i + 1, j}, {i - 1, j}, {i, j + 1}, {i, j - 1}}) {
-                    if (grid[r.first][r.second] == '.') {
-                        cornors[{i,j}].push_back(r);
-                    }
-                }
+                // for (std::pair<int, int> r : std::vector<std::pair<int, int>>{{i + 1, j}, {i - 1, j}, {i, j + 1}, {i, j - 1}}) {
+                //     if (grid[r.first][r.second] == '.') {
+                //         cornors[{i,j}].push_back(r);
+                //     }
+                // }
 
             }
 
@@ -350,11 +351,11 @@ int main() {
                 end_y = i;
                 x_axis[j].push_back({i,j});
                 y_axis[i].push_back({i,j});
-                for (std::pair<int, int> r : std::vector<std::pair<int, int>>{{i + 1, j}, {i - 1, j}, {i, j + 1}, {i, j - 1}}) {
-                    if (grid[r.first][r.second] == '.') {
-                        cornors[{i,j}].push_back(r);
-                    }
-                }
+                // for (std::pair<int, int> r : std::vector<std::pair<int, int>>{{i + 1, j}, {i - 1, j}, {i, j + 1}, {i, j - 1}}) {
+                //     if (grid[r.first][r.second] == '.') {
+                //         cornors[{i,j}].push_back(r);
+                //     }
+                // }
             }
         }
     }
@@ -390,11 +391,7 @@ int main() {
                 }
 
                 if ((ver != 2 && ver != 0) || (hor != 2 && hor != 0)) {
-                    for (std::pair<int, int> i : std::vector<std::pair<int, int>>{{y + 1, x}, {y - 1, x}, {y, x + 1}, {y, x - 1}}) {
-                        if (grid[i.first][i.second] == '.') {
-                            cornors[{y,x}].push_back(i);
-                        }
-                    }
+                    cornors_list.push_back({y,x});
                 }
                 
                 if (hor != 2 && hor != 0) {
@@ -424,6 +421,10 @@ int main() {
                 }
             }
         }
+    }
+
+    for (int i = 0; i < grid.size(); i++) {
+        
     }
 
     std::ofstream dump("dump");
